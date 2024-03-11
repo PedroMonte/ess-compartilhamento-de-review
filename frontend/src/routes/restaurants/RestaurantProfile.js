@@ -8,6 +8,11 @@ const RestaurantProfile = () => {
     const [restaurant, setRestaurant] = useState(null);
     const { id } = useParams()
 
+    let user = {
+        name: "pedro",
+        id: "65d558b610b3232a7a179dcb"
+    }
+
     useEffect(() => {
         fetch( API_BASE + '/restaurants/' + id)
             .then(response => {
@@ -45,10 +50,10 @@ const RestaurantProfile = () => {
                     </div>
 
                     <div className="restaurant-actions">
-                        <Link id="reviews-page" to={'/restaurants/update/'+id}>
+                        <Link id="reviews-page" to={'/reviews/'+id}>
                             Reviews de usuários
                         </Link>
-                        <Link id="create-review" to={'/restaurants/update/'+id}>
+                        <Link id="create-review" to={'/reviews/'+id+'/'+user.id+'/create'}>
                             Fazer review
                         </Link>
                         <Link id="edit-page" to={'/restaurants/update/'+id}>

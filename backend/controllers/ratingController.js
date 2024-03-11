@@ -2,9 +2,8 @@ const Rating = require("../models/Rating")
 
 //give a rating
 const rating_post = async (req, res) => {
-    const rating = new Rating({...req.body})
 
-    rating.save()
+    const rating = Rating.create(req.body)
 
     res.json(rating)
 }
@@ -13,6 +12,9 @@ const rating_post = async (req, res) => {
 const rating_avg = async (req, res) => {
 
     const averages = await Rating.aggregate([{$group: {_id: "$restaurant", avg_rating: {$avg: "$rating"}}}]);
+
+
+    //testar o parse aqui
 
     for(avg of averages) {
         if (avg._id == req.params.idrest) {

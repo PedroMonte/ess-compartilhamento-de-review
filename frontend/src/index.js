@@ -15,6 +15,13 @@ import UserPage from './routes/UserPage'
 import Followers from './routes/Followers'
 import Following from './routes/Following' 
 
+import RatingAdd from './routes/reviews/RatingAdd'
+import ReviewCreate from './routes/reviews/ReviewCreate'
+import ReviewEdit from './routes/reviews/ReviewEdit'
+import ReviewPage from './routes/reviews/ReviewPage'
+import ReviewsRestaurant from './routes/reviews/ReviewsRestaurant'
+import ReviewsUser from './routes/reviews/ReviewsUser'
+
 const router = createBrowserRouter([
   {
     path:"/",
@@ -37,11 +44,30 @@ const router = createBrowserRouter([
         path: "/restaurants/:id",
         element: <RestaurantProfile />
       },
-
-
-
-
-
+      {
+        path: "/ratings/:idrest",
+        element: <RatingAdd />
+      },
+      {
+        path: "/reviews/:idrest/:iduser/create",
+        element: <ReviewCreate />
+      },
+      {
+        path: "/reviews/:idrest/:iduser/edit",
+        element: <ReviewEdit /> 
+      },
+      {
+        path: "/reviews/:idrest/:iduser",
+        element: <ReviewPage /> 
+      },
+      {
+        path: "/reviews/:idrest/",
+        element: <ReviewsRestaurant /> 
+      },
+      {
+        path: "/reviews/:iduser",
+        element: <ReviewsUser /> 
+      },
       {
         path: "/users/:id",
         element: <UserPage />
