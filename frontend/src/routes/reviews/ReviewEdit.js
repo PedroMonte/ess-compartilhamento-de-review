@@ -39,7 +39,7 @@ const ReviewEdit = () => {
     const [likes, setLikes] = useState(0);
     const [dislikes, setDislikes] = useState(0);
 
-    async function editReview(ev) {
+    async function getOldReview() {
         try {
             const oldReview = await axios.get(`${API_BASE}/reviews/${idrest}/${iduser}`);
     
@@ -61,6 +61,9 @@ const ReviewEdit = () => {
         } catch (error) {
             console.error('Erro ao fazer a solicitação para a API', error);
         }
+    } getOldReview()
+
+    async function editReview(ev) {
 
         try {
             const response = await axios.put(`${API_BASE}/reviews/${idrest}/${iduser}/edit`, {

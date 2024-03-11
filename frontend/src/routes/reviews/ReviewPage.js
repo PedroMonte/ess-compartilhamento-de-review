@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Navigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from 'axios';
 import {IconButton} from "react"
@@ -14,6 +14,9 @@ const ReviewPage = () => {
     const [review, setReview] = useState(null);
     const [restaurant, setRestaurant] = useState(null);
     const [user, setUser] = useState(null);
+    const [isOwner, setIsOwner] = useState(true)
+
+    const [redirect, setRedirect] = useState(false);
 
     useEffect(() => {
         async function fetchData() {
@@ -57,6 +60,25 @@ const ReviewPage = () => {
         fetchData();
     }, [idrest, iduser]);
 
+    async function deleteReview(ev) {
+
+        try {
+            const response = await axios.delete(`${API_BASE}/reviews/${idrest}/${iduser}/edit`);
+
+            if (response.status === 200) {
+                setRedirect(true);
+            } else {
+                console.error('Falha ao deletar review', response.statusText);
+            }
+        } catch (error) {
+            console.error('Erro ao fazer a solicitação para a API', error);
+        }
+    }
+
+    if (redirect) {
+        return <Navigate to={`/reviews/${idrest}`} />;
+    }
+
     return (
         <div>
             {review && user && restaurant &&(
@@ -73,19 +95,21 @@ const ReviewPage = () => {
                         <p>{ review.preco }</p>
                         <p>{ review.image }</p>
                     </div>
-
-                    <div className="restaurant-actions">
-                        <Link id="reviews-page" to={`/reviews/${idrest}/${iduser}/edit`}>
-                            Editar Review
+                    {isOwner ? (
+                        <div>
+                        <Link id="review-edit" to={`/reviews/${idrest}/${iduser}/edit`}>
+                        Editar Review
                         </Link>
+
+                        <button className="simple-button" id="create-button" onClick={() => deleteReview()}>
+                        <p>Deletar Review</p>
+                        </button>
+                        
+                        </div>
+                    ): (<p></p>)}
+                    <div className="restaurant-actions">
                         <p>Avalie este review:</p>
-                        <IconButton color="primary" aria-label="like">
-                        <AiOutlineLike />
-                        </IconButton>
                         <p>{ review.likes }</p>
-                        <IconButton color="primary" aria-label="dislike">
-                        <AiOutlineDislike />
-                        </IconButton>
                         <p>{ review.dislikes }</p>
                        
                     </div>
@@ -94,6 +118,5 @@ const ReviewPage = () => {
         </div>
     );
 };
-
 
 export default ReviewPage;

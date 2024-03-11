@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from 'axios';
 
+import {IconButton} from "react"
+import { AiOutlineLike, AiOutlineDislike } from "react-icons/ai";
+
 import '../../style/Restaurants.css';
 
 const API_BASE = "http://localhost:3001";
@@ -27,7 +30,8 @@ const ReviewsRestaurant = () => {
                 if (response.status === 200) {
                     setReviews(response.data);
 
-                    const userIDs = [...new Set(reviews.map(review => review.user))]
+                    const userIDs = new Set(reviews.map(review => review.user))
+
 
                     for (const userID of userIDs) {
                         try {
@@ -53,8 +57,6 @@ const ReviewsRestaurant = () => {
         getReviews();
     }, []);
 
-    console.log(usernames)
-
     return (
         <div className="reviews-page">
             <Link className="link" to={`/reviews/${idrest}/${user.id}/create`}>
@@ -79,6 +81,8 @@ const ReviewsRestaurant = () => {
                                 <p>Visualizar</p>
                             </div>
                         </Link>
+                        <p>{ review.likes }</p>
+                        <p>{ review.dislikes }</p>
                     </div>
                 ))}
             </div>
