@@ -1,5 +1,5 @@
-import { useParams, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useParams, useNavigate} from "react-router-dom";
+import { useState, useEffect } from "react";
 import axios from 'axios';
 
 import "../../style/Stars.css";
@@ -7,6 +7,8 @@ import "../../style/Stars.css";
 const API_BASE = "http://localhost:3001";
 
 const ReviewCreate = () => {
+
+    const Navigate = useNavigate
     const params = useParams();
     const iduser = params.iduser;
     const idrest = params.idrest;
@@ -36,16 +38,27 @@ const ReviewCreate = () => {
     const [hoverP, setHoverP] = useState(null);
     const [totalStarsP, setTotalStarsP] = useState(5);
 
-    async function createNewReview(ev) {
-        try {
-            const oldRating = await axios.get(`${API_BASE}/ratings/${idrest}/${iduser}`);
-            if (oldRating.status === 200) {
-                setRating(oldRating.data.rating)
-            }
-        } catch (error) {
-                console.error('Erro ao fazer a solicitação para a API', error);
-        }
+    useEffect(() => {
+        const getOldRating = async () => {
+            try {
+                const oldRating = await axios.get(`${API_BASE}/ratings/${idrest}/${iduser}`);
 
+                if (oldRating.status === 200) {
+                    setRating(oldRating.data.rating);
+                }
+            } catch (error) {
+                if (error.response && error.response.status !== 404) {
+                    console.error('Erro ao fazer a solicitação para a API', error);
+                }
+            }
+        };
+        getOldRating();
+    }, [idrest, iduser]);
+
+    async function createNewReview(ev) {
+
+        ev.preventDefault()
+        
         try {
             const response = await axios.post(`${API_BASE}/reviews/${idrest}/${iduser}/create`, {
                 title: title,
@@ -71,8 +84,10 @@ const ReviewCreate = () => {
         }
     }
 
+    
+
     if (redirect) {
-        return <Navigate to={`/reviews/${idrest}`} />;
+        Navigate(`/reviews/${idrest}`)
     }
 
     return (
@@ -120,6 +135,7 @@ const ReviewCreate = () => {
                 placeholder="Amei a coxinha..." 
                 wrap = "soft"
                 name = "text"
+                required
                 value={text} onChange={ev => setText(ev.target.value)}
                 />
                 

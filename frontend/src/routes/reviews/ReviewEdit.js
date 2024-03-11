@@ -1,5 +1,5 @@
 import { useParams, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios';
 
 import "../../style/Stars.css";
@@ -39,32 +39,36 @@ const ReviewEdit = () => {
     const [likes, setLikes] = useState(0);
     const [dislikes, setDislikes] = useState(0);
 
-    async function getOldReview() {
-        try {
-            const oldReview = await axios.get(`${API_BASE}/reviews/${idrest}/${iduser}`);
-    
-            if (oldReview.status === 200) {
-                const data = oldReview.data
+    useEffect(() => {
+        const getOldReview = async () => {
+            try {
+                const oldReview = await axios.get(`${API_BASE}/reviews/${idrest}/${iduser}`);
+        
+                if (oldReview.status === 200) {
+                    const data = oldReview.data
 
-                setTitle(data.title)
-                setRating(data.rating)
-                setText(data.text)
-                setSabor(data.sabor)
-                setAtendimento(data.atendimento)
-                setTempoDeEspera(data.tempoDeEspera)
-                setPreco(data.preco)
-                setLikes(data.likes)
-                setDislikes(data.dislikes)
-            } else {
-                console.error('Falha ao obter dados do review', oldReview.statusText);
+                    setTitle(data.title)
+                    setRating(data.rating)
+                    setText(data.text)
+                    setSabor(data.sabor)
+                    setAtendimento(data.atendimento)
+                    setTempoDeEspera(data.tempoDeEspera)
+                    setPreco(data.preco)
+                    setLikes(data.likes)
+                    setDislikes(data.dislikes)
+                } else {
+                    console.error('Falha ao obter dados do review', oldReview.statusText);
+                }
+            } catch (error) {
+                console.error('Erro ao fazer a solicitação para a API', error);
             }
-        } catch (error) {
-            console.error('Erro ao fazer a solicitação para a API', error);
-        }
-    } getOldReview()
+        };
+
+        getOldReview();
+    }, [idrest, iduser]);
 
     async function editReview(ev) {
-
+        console.log('entrei')
         try {
             const response = await axios.put(`${API_BASE}/reviews/${idrest}/${iduser}/edit`, {
                 title: title,
@@ -115,7 +119,6 @@ const ReviewEdit = () => {
                             name="rating"
                             value={currentRating}
                             onChange={() => setRating(currentRating)}
-                            required
                         />
                         <span
                             className="star"
@@ -140,6 +143,7 @@ const ReviewEdit = () => {
                 wrap = "soft"
                 name = "text"
                 value={text} onChange={ev => setText(ev.target.value)}
+                required
                 />
                 
                 <p>Sabor</p>

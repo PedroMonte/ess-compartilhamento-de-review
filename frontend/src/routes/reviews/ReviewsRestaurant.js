@@ -13,13 +13,12 @@ const ReviewsRestaurant = () => {
     const [reviews, setReviews] = useState([]);
     const [usernames, setUsernames] = useState([]);
     const [error, setError] = useState(null);
-
-    const params = useParams();
-    const idrest = params.idrest;
+ 
+    const {idrest} = useParams()
 
     let user = {
         name: "pedro",
-        id: "65d558b610b3232a7a179dcb"
+        id: "65d51e36c3b06ec45cdd2ac8"
     }
 
     useEffect(() => {

@@ -11,7 +11,7 @@ const RestaurantProfile = () => {
 
     let user = {
         name: "pedro",
-        id: "65d558b610b3232a7a179dcb"
+        id: "65d51e36c3b06ec45cdd2ac8"
     }
 
     useEffect(() => {
@@ -29,48 +29,71 @@ const RestaurantProfile = () => {
     const [ratingBool, setRatingBool] = useState(false);
     const [avg, setAvg] = useState(0);
     const [numRatings, setNumRatings] = useState(0);
+    const [hasReview, setHasReview] = useState(false)
 
-    async function getOldRating(ev) {
-        try {
-            const oldRating = await axios.get(`${API_BASE}/ratings/${id}/${user.id}`);
-    
-            if (oldRating.status === 200) {
-                setRatingBool(true)
-                setRating(oldRating.data.rating)
-            } else {
-                setRatingBool(false)
-            }
-        } catch (error) {
-            console.error('Erro ao fazer a solicitação para a API', error);
-        }
-    }
-    getOldRating()
+    useEffect(() => {
+        const getOldRating = async () => {
+            try {
+                const oldRating = await axios.get(`${API_BASE}/ratings/${id}/${user.id}`);
 
-    async function getAvg(ev) {
-        try {
-            const response = await axios.get(`${API_BASE}/ratings/${id}/avg`);
-    
-            if (response.status === 200) {
-                setAvg(response.data)
+                if (oldRating.status === 200) {
+                    setRatingBool(true);
+                    setRating(oldRating.data.rating);
+                }
+            } catch (error) {
+                if (error.response && error.response.status !== 404) {
+                    console.error('Erro ao fazer a solicitação para a API', error);
+                }
             }
-        } catch (error) {
-            console.error('Erro ao fazer a solicitação para a API', error);
-        }
-    }
-    getAvg()
+        };
 
-    async function getRatings(ev) {
-        try {
-            const response = await axios.get(`${API_BASE}/ratings/${id}`);
-    
-            if (response.status === 200) {
-                setNumRatings(response.data.length)
+        const getAvg = async () => {
+            try {
+                const response = await axios.get(`${API_BASE}/ratings/${id}/avg`);
+
+                if (response.status === 200) {
+                    setAvg(response.data);
+                }
+            } catch (error) {
+                if (error.response && error.response.status !== 404) {
+                    console.error('Erro ao fazer a solicitação para a API', error);
+                }
             }
-        } catch (error) {
-            console.error('Erro ao fazer a solicitação para a API', error);
-        }
-    }
-    getRatings()
+        };
+
+        const getRatings = async () => {
+            try {
+                const response = await axios.get(`${API_BASE}/ratings/${id}`);
+
+                if (response.status === 200) {
+                    setNumRatings(response.data.length);
+                }
+            } catch (error) {
+                if (error.response && error.response.status !== 404) {
+                    console.error('Erro ao fazer a solicitação para a API', error);
+                }
+            }
+        };
+
+        const getReview = async () => {
+            try {
+                const response = await axios.get(`${API_BASE}/reviews/${id}/${user.id}`);
+
+                if (response.status === 200) {
+                    setHasReview(true)
+                }
+            } catch (error) {
+                if (error.response && error.response.status !== 404) {
+                    console.error('Erro ao fazer a solicitação para a API', error);
+                }
+            }
+        };
+
+        getOldRating();
+        getAvg();
+        getRatings();
+        getReview();
+    }, [id, user.id]);
 
 
     async function createRating(ev) {
@@ -80,14 +103,8 @@ const RestaurantProfile = () => {
                 restaurant: id,
                 rating: rating,
             });
-
-            if (response.status === 200) {
-                
-            } else {
-                console.error('Falha ao adicionar nota', response.statusText);
-            }
         } catch (error) {
-            console.error('Erro ao fazer a solicitação para a API', error);
+            console.error('Falha ao adicionar nota', error.response.statusText);
         }
     }
 
@@ -99,17 +116,24 @@ const RestaurantProfile = () => {
                 restaurant: id,
                 rating: rating,
             });
+        } catch (error) {
+            console.error('Falha ao editar nota', error.response.statusText);
+        }
+    }
+
+    async function deleteReview(ev) {
+        
+        try {
+            const response = await axios.delete(`${API_BASE}/reviews/${id}/${user.id}/delete`);
 
             if (response.status === 200) {
-                
+                window.location.reload(false);
             } else {
-                console.error('Falha ao editar nota', response.statusText);
-                }
-            } catch (error) {
-                console.error('Erro ao fazer a solicitação para a API', error);
+                console.error('Falha ao deletar review', response.statusText);
             }
-
-
+        } catch (error) {
+            console.error('Erro ao fazer a solicitação para a API', error);
+        }
     }
     
     return ( 
@@ -145,9 +169,22 @@ const RestaurantProfile = () => {
                         <Link id="reviews-page" to={'/reviews/'+id}>
                             Reviews de usuários
                         </Link>
-                        <Link id="create-review" to={'/reviews/'+id+'/'+user.id+'/create'}>
-                            Fazer review
-                        </Link>
+                        {hasReview ? (
+                            <div>
+                                <Link id="edit-review" to={'/reviews/'+id+'/'+user.id+'/edit'}>
+                                Editar review
+                                </Link>
+                                <button className="simple-button" id="create-button" onClick={() => deleteReview()}>
+                                <p>Deletar Review</p>
+                                </button>
+                            </div>
+                            
+                        ) : (
+                            <Link id="create-review" to={'/reviews/'+id+'/'+user.id+'/create'}>
+                            Criar review
+                            </Link>
+                        )}
+                        
                         <Link id="edit-page" to={'/restaurants/update/'+id}>
                             Editar Página
                         </Link>
@@ -186,7 +223,7 @@ const RestaurantProfile = () => {
                     })}
                     
                     <button className="simple-button" id="create-button" type = "submit">
-                            <p>Enviar</p>
+                            <p>Atualizar Nota</p>
                         </button>
 
                 </form>
@@ -222,7 +259,7 @@ const RestaurantProfile = () => {
                     })}
                     
                     <button className="simple-button" id="create-button" type = "submit">
-                            <p>Enviar</p>
+                            <p>Adicionar Nota</p>
                         </button>
 
                 </form>

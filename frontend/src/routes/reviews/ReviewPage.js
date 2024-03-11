@@ -63,7 +63,7 @@ const ReviewPage = () => {
     async function deleteReview(ev) {
 
         try {
-            const response = await axios.delete(`${API_BASE}/reviews/${idrest}/${iduser}/edit`);
+            const response = await axios.delete(`${API_BASE}/reviews/${idrest}/${iduser}/delete`);
 
             if (response.status === 200) {
                 setRedirect(true);
