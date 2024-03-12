@@ -100,7 +100,8 @@ const user_signin = async (req, res) => {
         const match = await bcrypt.compare(password, hashedPassword);
 
         if (match) {
-            const token = jwt.sign({ userId: user._id }, 'your-secret-key', { expiresIn: '1h' });
+            const token = jwt.sign({ userId: user._id, name: user.name,
+                email: user.email}, 'your-secret-key', { expiresIn: '1h' });
 
             return res.json({
                 status: "SUCCESS",

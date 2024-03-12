@@ -2,7 +2,15 @@ const jwt = require('jsonwebtoken');
 
 // Função para gerar um token JWT
 const generateToken = (user) => {
-    return jwt.sign({ userId: user._id }, 'secreto', { expiresIn: '1h' });
+
+    const payload = {
+        userId: user._id,
+        name: user.name,
+        email: user.email
+
+    };
+
+    return jwt.sign(payload, 'secreto', { expiresIn: '1h' });
 };
 
 // Middleware para verificar o token em cada requisição

@@ -2,17 +2,31 @@ import { useParams } from "react-router-dom"
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react"
 import axios from 'axios';
+import { jwtDecode } from "jwt-decode";
 
 const API_BASE = "http://localhost:3001"
 
 const RestaurantProfile = () => {
     const [restaurant, setRestaurant] = useState(null);
     const { id } = useParams()
+    const [iduser, setIdUser] = useState(null)
 
-    let user = {
-        name: "pedro",
-        id: "65d558b610b3232a7a179dcb"
-    }
+    useEffect(() => {
+        const getUserInfoFromToken = () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const decoded = jwtDecode(token);
+                    setIdUser(decoded.userId)
+                } catch (error) {
+                    console.error("Failed to decode token", error);
+                }
+            }
+            return null;
+        };
+
+        getUserInfoFromToken();
+    },[]);
 
     useEffect(() => {
         fetch( API_BASE + '/restaurants/' + id)
@@ -34,7 +48,7 @@ const RestaurantProfile = () => {
     useEffect(() => {
         const getOldRating = async () => {
             try {
-                const oldRating = await axios.get(`${API_BASE}/ratings/${id}/${user.id}`);
+                const oldRating = await axios.get(`${API_BASE}/ratings/${id}/${iduser}`);
 
                 if (oldRating.status === 200) {
                     setRatingBool(true);
@@ -77,7 +91,7 @@ const RestaurantProfile = () => {
 
         const getReview = async () => {
             try {
-                const response = await axios.get(`${API_BASE}/reviews/${id}/${user.id}`);
+                const response = await axios.get(`${API_BASE}/reviews/${id}/${iduser}`);
 
                 if (response.status === 200) {
                     setHasReview(true)
@@ -93,13 +107,13 @@ const RestaurantProfile = () => {
         getAvg();
         getRatings();
         getReview();
-    }, [id, user.id]);
+    }, [id, iduser]);
 
 
     async function createRating(ev) {
         try {
-            const response = await axios.post(`${API_BASE}/ratings/${id}/${user.id}/create`, {
-                user: user.id,
+            const response = await axios.post(`${API_BASE}/ratings/${id}/${iduser}/create`, {
+                user: iduser,
                 restaurant: id,
                 rating: rating,
             });
@@ -111,8 +125,8 @@ const RestaurantProfile = () => {
     async function editRating(ev) {
 
         try {
-            const response = await axios.put(`${API_BASE}/ratings/${id}/${user.id}/edit`, {
-                user: user.id,
+            const response = await axios.put(`${API_BASE}/ratings/${id}/${iduser}/edit`, {
+                user: iduser,
                 restaurant: id,
                 rating: rating,
             });
@@ -124,7 +138,7 @@ const RestaurantProfile = () => {
     async function deleteReview(ev) {
         
         try {
-            const response = await axios.delete(`${API_BASE}/reviews/${id}/${user.id}/delete`);
+            const response = await axios.delete(`${API_BASE}/reviews/${id}/${iduser}/delete`);
 
             if (response.status === 200) {
                 window.location.reload(false);
@@ -193,7 +207,7 @@ const RestaurantProfile = () => {
                         </Link>
                         {hasReview ? (
                             <div>
-                                <Link id="edit-review" to={'/reviews/'+id+'/'+user.id+'/edit'}>
+                                <Link id="edit-review" to={'/reviews/'+id+'/'+iduser+'/edit'}>
                                 Editar review
                                 </Link>
                                 <button className="simple-button" id="create-button" onClick={() => deleteReview()}>
@@ -202,7 +216,7 @@ const RestaurantProfile = () => {
                             </div>
                             
                         ) : (
-                            <Link id="create-review" to={'/reviews/'+id+'/'+user.id+'/create'}>
+                            <Link id="create-review" to={'/reviews/'+id+'/'+iduser+'/create'}>
                             Criar review
                             </Link>
                         )}
