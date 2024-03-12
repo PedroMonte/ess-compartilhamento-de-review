@@ -8,7 +8,7 @@ const API_BASE = "http://localhost:3001";
 
 const ReviewCreate = () => {
 
-    const Navigate = useNavigate
+    const navigate = useNavigate()
     const params = useParams();
     const iduser = params.iduser;
     const idrest = params.idrest;
@@ -87,7 +87,7 @@ const ReviewCreate = () => {
     
 
     if (redirect) {
-        Navigate(`/reviews/${idrest}`)
+        navigate('/reviews/' + idrest)
     }
 
     return (
@@ -246,10 +246,13 @@ const ReviewCreate = () => {
                         </label>
                     );
                 })}
-
+                <div>
                 <button className="simple-button" id="create-button" type = "submit">
                         <p>Enviar</p>
                     </button>
+                </div>
+
+                
 
             </form>
 

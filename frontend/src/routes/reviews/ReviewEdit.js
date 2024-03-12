@@ -1,4 +1,4 @@
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from 'axios';
 
@@ -11,7 +11,10 @@ const ReviewEdit = () => {
     const iduser = params.iduser;
     const idrest = params.idrest;
 
-    const [redirect, setRedirect] = useState(false);
+    const navigate = useNavigate()
+
+    const [redirectDelete, setRedirectDelete] = useState(false);
+    const [redirectEdit, setRedirectEdit] = useState(false);
 
     const [title, setTitle] = useState('');
     const [text, setText] = useState('');
@@ -68,7 +71,9 @@ const ReviewEdit = () => {
     }, [idrest, iduser]);
 
     async function editReview(ev) {
-        console.log('entrei')
+
+        ev.preventDefault()
+        
         try {
             const response = await axios.put(`${API_BASE}/reviews/${idrest}/${iduser}/edit`, {
                 title: title,
@@ -80,12 +85,12 @@ const ReviewEdit = () => {
                 atendimento: atendimento,
                 tempoDeEspera: tempoDeEspera,
                 preco: preco,
-                likes: 0,
-                dislikes: 0
+                likes: likes,
+                dislikes: dislikes
             });
 
             if (response.status === 200) {
-                setRedirect(true);
+                setRedirectEdit(true)
             } else {
                 console.error('Falha ao editar review', response.statusText);
             }
@@ -94,8 +99,29 @@ const ReviewEdit = () => {
         }
     }
 
-    if (redirect) {
-        return <Navigate to={`/reviews/${idrest}/${iduser}`} />;
+    async function deleteReview(ev) {
+
+        ev.preventDefault()
+        
+        try {
+            const response = await axios.delete(`${API_BASE}/reviews/${idrest}/${iduser}/delete`);
+
+            if (response.status === 200) {
+                setRedirectDelete(true)
+            } else {
+                console.error('Falha ao deletar review', response.statusText);
+            }
+        } catch (error) {
+            console.error('Erro ao fazer a solicitação para a API', error);
+        }
+    }
+
+    if (redirectEdit) {
+        navigate('/reviews/' + idrest + '/' + iduser)
+    }
+
+    if (redirectDelete) {
+        navigate('/reviews/' + idrest)
     }
 
     return (
@@ -253,10 +279,20 @@ const ReviewEdit = () => {
                         </label>
                     );
                 })}
+                <div>
+
+                <button className="simple-button" id="create-button" onClick={() => deleteReview()}>
+                    <p>Deletar Review</p>
+                </button>
 
                 <button className="simple-button" id="create-button" type = "submit">
-                        <p>Enviar</p>
-                    </button>
+                    <p>Enviar</p>
+                </button>
+                
+
+                </div>
+
+                
 
             </form>
 

@@ -1,4 +1,4 @@
-import { useParams, Navigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from 'axios';
 import {IconButton} from "react"
@@ -11,6 +11,8 @@ const ReviewPage = () => {
     const iduser = params.iduser;
     const idrest = params.idrest;
 
+    const navigate = useNavigate()
+
     const [review, setReview] = useState(null);
     const [restaurant, setRestaurant] = useState(null);
     const [user, setUser] = useState(null);
@@ -18,13 +20,26 @@ const ReviewPage = () => {
 
     const [redirect, setRedirect] = useState(false);
 
+    const [likes, setLikes] = useState(0);
+    const [dislikes, setDislikes] = useState(0);
+
+    let userLogin = {
+        name: "pedro",
+        id: "65d558b610b3232a7a179dcb"
+    }
+
     useEffect(() => {
+        if (iduser === userLogin.id) {
+            setIsOwner(true)
+        }
         async function fetchData() {
             try {
                 const response = await axios.get(`${API_BASE}/reviews/${idrest}/${iduser}`);
         
                 if (response.status === 200) {
                     setReview(response.data)
+                    setLikes(response.data.likes)
+                    setDislikes(response.data.dislikes)
                 } else {
                     console.error('Falha ao obter dados do review', response.statusText);
                 }
@@ -75,8 +90,60 @@ const ReviewPage = () => {
         }
     }
 
+    async function editReview(ev) {
+
+        console.log('entrei')
+        try {
+            
+        } catch (error) {
+            console.error('Falha ao dar like ou dislike');
+        }
+    }
+
+    async function handleLike () {
+        setLikes((prevCount) => (prevCount === review.likes ? review.likes + 1 : review.likes))
+        setDislikes(review.dislikes)
+
+        console.log(likes)
+       
+        const response = await axios.put(`${API_BASE}/reviews/${idrest}/${iduser}/edit`, {
+            title: review.title,
+            user: iduser,
+            restaurant: idrest,
+            rating: review.rating,
+            text: review.text,
+            sabor: review.sabor,
+            atendimento: review.atendimento,
+            tempoDeEspera: review.tempoDeEspera,
+            preco: review.preco,
+            likes: likes,
+            dislikes: dislikes
+        });
+      };
+    
+      async function handleDislike () {
+        setDislikes((prevCount) => (prevCount === review.dislikes ? review.dislikes + 1 : review.dislikes))
+        setLikes(review.likes)
+
+        console.log(dislikes)
+        
+        const response = await axios.put(`${API_BASE}/reviews/${idrest}/${iduser}/edit`, {
+            title: review.title,
+            user: iduser,
+            restaurant: idrest,
+            rating: review.rating,
+            text: review.text,
+            sabor: review.sabor,
+            atendimento: review.atendimento,
+            tempoDeEspera: review.tempoDeEspera,
+            preco: review.preco,
+            likes: likes,
+            dislikes: dislikes
+        });
+    };
+
     if (redirect) {
-        return <Navigate to={`/reviews/${idrest}`} />;
+        navigate('/reviews/' + idrest)
     }
 
     return (
@@ -85,15 +152,83 @@ const ReviewPage = () => {
                 <div id="review-page">
                     <div className="review-details">
                         <h2>{ review.title }</h2>
-                        <p>{ review.rating }</p>
+                        <div>
+                            {[...Array(5)].map((star, index) => {
+                                const starValue = index + 1;
+
+                                return (
+                                <span
+                                    key={index}
+                                    style={{ color: starValue <= review.rating ? '#ffc107' : '#e4e5e9' }}
+                                >
+                                    &#9733;
+                                </span>
+                                );
+                            })}
+                        </div>
                         <p>{ user.name}</p>
                         <p>{ restaurant.name}</p>
                         <p>{ review.text}</p>
-                        <p>{ review.sabor }</p>
-                        <p>{ review.atendimento }</p>
-                        <p>{ review.tempoDeEspera }</p>
-                        <p>{ review.preco }</p>
-                        <p>{ review.image }</p>
+                        <p>Sabor:</p>
+                        <div>
+                            {[...Array(5)].map((star, index) => {
+                                const starValue = index + 1;
+
+                                return (
+                                <span
+                                    key={index}
+                                    style={{ color: starValue <= review.sabor ? '#ffc107' : '#e4e5e9' }}
+                                >
+                                    &#9733;
+                                </span>
+                                );
+                            })}
+                        </div>
+                        <p>Atendimento:</p>
+                        <div>
+                            {[...Array(5)].map((star, index) => {
+                                const starValue = index + 1;
+
+                                return (
+                                <span
+                                    key={index}
+                                    style={{ color: starValue <= review.atendimento ? '#ffc107' : '#e4e5e9' }}
+                                >
+                                    &#9733;
+                                </span>
+                                );
+                            })}
+                        </div>
+                        <p>Tempo de Espera</p>
+                        <div>
+                            {[...Array(5)].map((star, index) => {
+                                const starValue = index + 1;
+
+                                return (
+                                <span
+                                    key={index}
+                                    style={{ color: starValue <= review.tempoDeEspera ? '#ffc107' : '#e4e5e9' }}
+                                >
+                                    &#9733;
+                                </span>
+                                );
+                            })}
+                        </div>
+                        <p>Preço:</p>
+                        <div>
+                            {[...Array(5)].map((star, index) => {
+                                const starValue = index + 1;
+
+                                return (
+                                <span
+                                    key={index}
+                                    style={{ color: starValue <= review.preco ? '#ffc107' : '#e4e5e9' }}
+                                >
+                                    &#9733;
+                                </span>
+                                );
+                            })}
+                        </div>
                     </div>
                     {isOwner ? (
                         <div>
@@ -109,9 +244,22 @@ const ReviewPage = () => {
                     ): (<p></p>)}
                     <div className="restaurant-actions">
                         <p>Avalie este review:</p>
-                        <p>{ review.likes }</p>
-                        <p>{ review.dislikes }</p>
+                        <div>
+                            <button onClick={handleLike} style={{ color: likes > 0 ? 'blue' : 'black' }}>
+                                <AiOutlineLike /> {likes}
+                            </button>
+
+                            <button onClick={handleDislike} style={{ color: dislikes > 0 ? 'red' : 'black' }}>
+                                <AiOutlineDislike /> {dislikes}
+                            </button>
+                        </div>
                        
+                    </div>
+
+                    <div>
+                        <Link id="return" to={'/reviews/'+idrest}>
+                        Voltar
+                        </Link>
                     </div>
                 </div>
             )}

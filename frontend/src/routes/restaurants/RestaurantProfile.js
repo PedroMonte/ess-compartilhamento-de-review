@@ -11,7 +11,7 @@ const RestaurantProfile = () => {
 
     let user = {
         name: "pedro",
-        id: "65d51e36c3b06ec45cdd2ac8"
+        id: "65d558b610b3232a7a179dcb"
     }
 
     useEffect(() => {
@@ -148,8 +148,30 @@ const RestaurantProfile = () => {
                                 <div id="restaurant-main-data">
                                     <h2 id="restaurant-name">{ restaurant.name }</h2>
                                     <p className="restaurant-atribute"> Tipo de comida: {restaurant.typeOfFood}</p>
-                                    <p className="restaurant-review-n"> {numRatings} Reviews</p>
-                                    <p className="restaurant-avg"> Média de {avg} estrelas </p>
+                                    {numRatings !== 1 ? (
+                                        <div>
+                                            {numRatings} Reviews
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            {numRatings} Review
+                                        </div>
+                                        
+                                    )}
+                                    <div>
+                                        {[...Array(5)].map((star, index) => {
+                                            const starValue = index + 1;
+
+                                            return (
+                                            <span
+                                                key={index}
+                                                style={{ color: starValue <= avg ? '#ffc107' : '#524d39' }}
+                                            >
+                                                &#9733;
+                                            </span>
+                                            );
+                                        })}
+                                    </div>
                                     { restaurant.site && <a className="restaurant-atribute" id="restaurant-site" href={restaurant.site}> Site oficial </a>}
                                 </div>
                             </div>
